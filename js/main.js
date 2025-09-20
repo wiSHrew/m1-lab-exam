@@ -1,12 +1,11 @@
 import * as THREE from './three.module.js';
-import { OrbitControls } from './OrbitControls.js';
 import { FontLoader } from './FontLoader.js';
 import { TextGeometry } from './TextGeometry.js';
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 5000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000);
 const renderer = new THREE.WebGLRenderer();
-const loader = new FontLoader();
+const fontLoader = new FontLoader();
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -17,16 +16,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 
 scene.background = new THREE.Color(0xB9F3FC);
 
-// OrbitControls setup
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.enablePan = true;
-controls.enableZoom = true;
-controls.target.set(0, 0, 0);
-controls.update();
-
-// Resize handling
+// ===== Resize Handling =====
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -34,204 +24,191 @@ function onWindowResize() {
 }
 window.addEventListener('resize', onWindowResize);
 
-let colorvar = 0x000000;
-
-// ===== FLOOR =====
-const floorG = new THREE.BoxGeometry(12, 1, 10);
-const floorM = new THREE.MeshStandardMaterial({ color: 0xDFD3C3 });
-const floor = new THREE.Mesh(floorG, floorM);
+// ===== Floor =====
+const floorGeometry = new THREE.BoxGeometry(12, 1, 10);
+const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xDFD3C3 });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.receiveShadow = true;
 floor.castShadow = true;
 scene.add(floor);
 floor.position.y = -3.3;
 
-// ===== WALLS =====
-let wallcolor = 0xB5D5C5;
+// ===== Walls =====
+const wallColor = 0xB5D5C5;
 
-// left wall
-const LWallG = new THREE.BoxGeometry(1, 6, 10);
-const LWallM = new THREE.MeshStandardMaterial({ color: wallcolor });
-const LWall = new THREE.Mesh(LWallG, LWallM);
-LWall.receiveShadow = true;
-LWall.castShadow = true;
-scene.add(LWall);
-LWall.position.set(-6, 0, 0);
+// Left wall
+const leftWallGeometry = new THREE.BoxGeometry(1, 6, 10);
+const leftWallMaterial = new THREE.MeshStandardMaterial({ color: wallColor });
+const leftWall = new THREE.Mesh(leftWallGeometry, leftWallMaterial);
+leftWall.receiveShadow = true;
+leftWall.castShadow = true;
+scene.add(leftWall);
+leftWall.position.set(-6, 0, 0);
 
-// right wall pieces
-const RWall1 = new THREE.Mesh(new THREE.BoxGeometry(.5, 2, 10), new THREE.MeshStandardMaterial({ color: wallcolor }));
-scene.add(RWall1);
-RWall1.position.set(6, -1.8, 0);
+// Right wall pieces
+const rightWallBottom = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 10), new THREE.MeshStandardMaterial({ color: wallColor }));
+scene.add(rightWallBottom);
+rightWallBottom.position.set(6, -1.8, 0);
 
-const RWall2 = new THREE.Mesh(new THREE.BoxGeometry(.5, 1, 10), new THREE.MeshStandardMaterial({ color: wallcolor }));
-scene.add(RWall2);
-RWall2.position.set(6, 2, 0);
+const rightWallTop = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1, 10), new THREE.MeshStandardMaterial({ color: wallColor }));
+scene.add(rightWallTop);
+rightWallTop.position.set(6, 2, 0);
 
-const RWall3 = new THREE.Mesh(new THREE.BoxGeometry(.5, 3, 5), new THREE.MeshStandardMaterial({ color: wallcolor }));
-scene.add(RWall3);
-RWall3.position.set(6, 0, -3);
+const rightWallBack = new THREE.Mesh(new THREE.BoxGeometry(0.5, 3, 5), new THREE.MeshStandardMaterial({ color: wallColor }));
+scene.add(rightWallBack);
+rightWallBack.position.set(6, 0, -3);
 
-const RWall4 = new THREE.Mesh(new THREE.BoxGeometry(.5, 3, 1), new THREE.MeshStandardMaterial({ color: wallcolor }));
-scene.add(RWall4);
-RWall4.position.set(6, 0, 4.5);
+const rightWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.5, 3, 1), new THREE.MeshStandardMaterial({ color: wallColor }));
+scene.add(rightWallFront);
+rightWallFront.position.set(6, 0, 4.5);
 
-// window
-colorvar = 0xEDECE0;
-const glass = new THREE.Mesh(new THREE.BoxGeometry(.3, 3, 6), new THREE.MeshStandardMaterial({ 
-    color: colorvar,
+// Window
+const glass = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3, 6), new THREE.MeshStandardMaterial({ 
+    color: 0xEDECE0,
     transparent: true,
-    opacity: .5
+    opacity: 0.5
 }));
 scene.add(glass);
 glass.position.set(6, 0, 1.8);
 
-// back wall
-const BWall1 = new THREE.Mesh(new THREE.BoxGeometry(12, 6, 1), new THREE.MeshStandardMaterial({ color: wallcolor }));
-scene.add(BWall1);
-BWall1.position.set(0, 0, -5);
+// Back wall
+const backWall = new THREE.Mesh(new THREE.BoxGeometry(12, 6, 1), new THREE.MeshStandardMaterial({ color: wallColor }));
+scene.add(backWall);
+backWall.position.set(0, 0, -5);
 
-// ceiling
-const Ceil = new THREE.Mesh(new THREE.BoxGeometry(12, 1, 10), new THREE.MeshStandardMaterial({ color: 0xDFD3C3 }));
-scene.add(Ceil);
-Ceil.position.set(0, 3, 0);
+// Ceiling
+const ceiling = new THREE.Mesh(new THREE.BoxGeometry(12, 1, 10), new THREE.MeshStandardMaterial({ color: 0xDFD3C3 }));
+scene.add(ceiling);
+ceiling.position.set(0, 3, 0);
 
-// Bed
-colorvar = 0x56310F;
-const bed1 = new THREE.Mesh(new THREE.BoxGeometry(9.5, .6, 4), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(bed1);
-bed1.position.set(1.5, -2, -2.5);
+// ===== Bed =====
+const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(9.5, 0.6, 4), new THREE.MeshStandardMaterial({ color: 0x56310F }));
+scene.add(bedFrame);
+bedFrame.position.set(1.5, -2, -2.5);
 
-const bed2 = new THREE.Mesh(new THREE.BoxGeometry(8.8, .5, 3.9), new THREE.MeshStandardMaterial({ color: 0x797878}));
-scene.add(bed2);
-bed2.position.set(1.3, -1.6, -2.5);
+const mattress = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.5, 3.9), new THREE.MeshStandardMaterial({ color: 0x797878 }));
+scene.add(mattress);
+mattress.position.set(1.3, -1.6, -2.5);
 
-const bedleg1 = new THREE.Mesh(new THREE.BoxGeometry(.3, 3.5, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(bedleg1);
-bedleg1.position.set(5.6, -2, -4.4);
+const bedLeg1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.5, 0.3), new THREE.MeshStandardMaterial({ color: 0x56310F }));
+scene.add(bedLeg1);
+bedLeg1.position.set(5.6, -2, -4.4);
 
-const bedleg2 = new THREE.Mesh(new THREE.BoxGeometry(.3, 3.5, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(bedleg2);
-bedleg2.position.set(5.6, -2, -0.65);
+const bedLeg2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.5, 0.3), new THREE.MeshStandardMaterial({ color: 0x56310F }));
+scene.add(bedLeg2);
+bedLeg2.position.set(5.6, -2, -0.65);
 
-const bedHead = new THREE.Mesh(new THREE.BoxGeometry(.1, 1, 4), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(bedHead);
-bedHead.position.set(5.6, -1, -2.5);
+const bedHeadboard = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1, 4), new THREE.MeshStandardMaterial({ color: 0x56310F }));
+scene.add(bedHeadboard);
+bedHeadboard.position.set(5.6, -1, -2.5);
 
-const bedleg3 = new THREE.Mesh(new THREE.BoxGeometry(.3, 2.5, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(bedleg3);
-bedleg3.position.set(1.5-4.6, -2, -4.35);
+const bedLeg3 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2.5, 0.3), new THREE.MeshStandardMaterial({ color: 0x56310F }));
+scene.add(bedLeg3);
+bedLeg3.position.set(-3.1, -2, -4.35);
 
-const bedleg4 = new THREE.Mesh(new THREE.BoxGeometry(.3, 2.5, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(bedleg4);
-bedleg4.position.set(1.5-4.6, -2, -0.65);
+const bedLeg4 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2.5, 0.3), new THREE.MeshStandardMaterial({ color: 0x56310F }));
+scene.add(bedLeg4);
+bedLeg4.position.set(-3.1, -2, -0.65);
 
-const bedFoot = new THREE.Mesh(new THREE.BoxGeometry(.1, .4, 4), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(bedFoot);
-bedFoot.position.set(1.5-4.6, -1.2, -2.5);
+const bedFootboard = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 4), new THREE.MeshStandardMaterial({ color: 0x56310F }));
+scene.add(bedFootboard);
+bedFootboard.position.set(-3.1, -1.2, -2.5);
 
-// Table
-colorvar = 0xB9814C;
-const table = new THREE.Mesh(new THREE.BoxGeometry(2.5, .2, 5), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(table);
-table.position.set(-4.25, -.5-.5, 2);
+// ===== Table =====
+const tableTop = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.2, 5), new THREE.MeshStandardMaterial({ color: 0xB9814C }));
+scene.add(tableTop);
+tableTop.position.set(-4.25, -1, 2);
 
-const tableLeg1 = new THREE.Mesh(new THREE.BoxGeometry(.3, 3, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
+const tableLeg1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3, 0.3), new THREE.MeshStandardMaterial({ color: 0xB9814C }));
 scene.add(tableLeg1);
-tableLeg1.position.set(-4.25+1, -1.9-.5, 2+2.3);
+tableLeg1.position.set(-3.25, -2.4, 4.3);
 
-const tableLeg2 = new THREE.Mesh(new THREE.BoxGeometry(.3, 3, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
+const tableLeg2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3, 0.3), new THREE.MeshStandardMaterial({ color: 0xB9814C }));
 scene.add(tableLeg2);
-tableLeg2.position.set(-4.25+1, -1.9-.5, 2-2.3);
+tableLeg2.position.set(-3.25, -2.4, -0.3);
 
-const tableLeg3 = new THREE.Mesh(new THREE.BoxGeometry(.3, 3, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
+const tableLeg3 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3, 0.3), new THREE.MeshStandardMaterial({ color: 0xB9814C }));
 scene.add(tableLeg3);
-tableLeg3.position.set(-4.25-1, -1.9-.5, 2+2.3);
+tableLeg3.position.set(-5.25, -2.4, 4.3);
 
-const tableLeg4 = new THREE.Mesh(new THREE.BoxGeometry(.3, 3, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
+const tableLeg4 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3, 0.3), new THREE.MeshStandardMaterial({ color: 0xB9814C }));
 scene.add(tableLeg4);
-tableLeg4.position.set(-4.25-1, -1.9-.5, 2-2.3);
+tableLeg4.position.set(-5.25, -2.4, -0.3);
 
-// chair
-colorvar = 0xE5E5E5;
-const chair = new THREE.Mesh(new THREE.CylinderGeometry( 1, 1, .2, 325), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(chair);
-chair.position.set(-2, -1.7, 2);
+// ===== Chair =====
+const chairSeat = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.2, 32), new THREE.MeshStandardMaterial({ color: 0xE5E5E5 }));
+scene.add(chairSeat);
+chairSeat.position.set(-2, -1.7, 2);
 
-const chairLeg1 = new THREE.Mesh(new THREE.BoxGeometry(.3, 2, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(chairLeg1);
-chairLeg1.position.set(-2+.5, -1.7-1, 2+.5);
+const chairLegA = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.3), new THREE.MeshStandardMaterial({ color: 0xE5E5E5 }));
+scene.add(chairLegA);
+chairLegA.position.set(-1.5, -2.7, 2.5);
 
-const chairLeg2 = new THREE.Mesh(new THREE.BoxGeometry(.3, 2, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(chairLeg2);
-chairLeg2.position.set(-2+.5, -1.7-1, 2-.5);
+const chairLegB = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.3), new THREE.MeshStandardMaterial({ color: 0xE5E5E5 }));
+scene.add(chairLegB);
+chairLegB.position.set(-1.5, -2.7, 1.5);
 
-const chairLeg3 = new THREE.Mesh(new THREE.BoxGeometry(.3, 2, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(chairLeg3);
-chairLeg3.position.set(-2-.5, -1.7-1, 2-.5);
+const chairLegC = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.3), new THREE.MeshStandardMaterial({ color: 0xE5E5E5 }));
+scene.add(chairLegC);
+chairLegC.position.set(-2.5, -2.7, 1.5);
 
-const chairLeg4 = new THREE.Mesh(new THREE.BoxGeometry(.3, 2, .3), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(chairLeg4);
-chairLeg4.position.set(-2-.5, -1.7-1, 2+.5);
+const chairLegD = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.3), new THREE.MeshStandardMaterial({ color: 0xE5E5E5 }));
+scene.add(chairLegD);
+chairLegD.position.set(-2.5, -2.7, 2.5);
 
-// Laptop
-colorvar = 0x3D3D3D;
-const laptopB = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 2), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(laptopB);
-laptopB.position.set(-3.9, -.35-.5, 2);
+// ===== Laptop =====
+const laptopBase = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 2), new THREE.MeshStandardMaterial({ color: 0x3D3D3D }));
+scene.add(laptopBase);
+laptopBase.position.set(-3.9, -0.85, 2);
 
-const laptopH = new THREE.Mesh(new THREE.BoxGeometry(.05, 1.5, 2), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(laptopH);
-laptopH.position.set(-4.7, .4-.5, 2);
-laptopH.rotation.set(0, 0, -3);
+const laptopHinge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.5, 2), new THREE.MeshStandardMaterial({ color: 0x3D3D3D }));
+scene.add(laptopHinge);
+laptopHinge.position.set(-4.7, -0.1, 2);
+laptopHinge.rotation.set(0, 0, -3);
 
-colorvar = 0x5C5C5C;
-const keyboard = new THREE.Mesh(new THREE.BoxGeometry(.8, 0.1, 1.8), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(keyboard);
-keyboard.position.set(-4, -.34-.5, 2);
+const laptopKeyboard = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.1, 1.8), new THREE.MeshStandardMaterial({ color: 0x5C5C5C }));
+scene.add(laptopKeyboard);
+laptopKeyboard.position.set(-4, -0.84, 2);
 
-const trackpad = new THREE.Mesh(new THREE.BoxGeometry(.3, 0.1, .5), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(trackpad);
-trackpad.position.set(-3.37, -.34-.5, 2);
+const laptopTrackpad = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.5), new THREE.MeshStandardMaterial({ color: 0x5C5C5C }));
+scene.add(laptopTrackpad);
+laptopTrackpad.position.set(-3.37, -0.84, 2);
 
-const screen = new THREE.Mesh(new THREE.BoxGeometry(.05, 1.3, 1.8), new THREE.MeshStandardMaterial({ color: colorvar }));
-scene.add(screen);
-screen.position.set(-4.699, .4-.5, 2);
-screen.rotation.set(0, 0, -3);
+const laptopScreen = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.3, 1.8), new THREE.MeshStandardMaterial({ color: 0x5C5C5C }));
+scene.add(laptopScreen);
+laptopScreen.position.set(-4.699, -0.1, 2);
+laptopScreen.rotation.set(0, 0, -3);
 
+// ===== Lightbulb =====
+const lightbulbPos = { x: 0, y: 2.35, z: 3 };
 
-// ===== LIGHTBULB =====
-let lightbulbposX = 0;
-let lightbulbposY = 2.35;
-let lightbulbposZ = 3;
+const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.1, 64, 32), new THREE.MeshBasicMaterial({ color: 0xF5EA5A }));
+scene.add(bulb);
+bulb.position.set(lightbulbPos.x, lightbulbPos.y, lightbulbPos.z);
 
-const lightbulb = new THREE.Mesh(new THREE.SphereGeometry(0.1, 64, 32), new THREE.MeshBasicMaterial({ color: 0xF5EA5A }));
-scene.add(lightbulb);
-lightbulb.position.set(lightbulbposX, lightbulbposY, lightbulbposZ);
+const bulbBase = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.01, 64), new THREE.MeshStandardMaterial({ color: 0xDDDDDD }));
+scene.add(bulbBase);
+bulbBase.position.set(lightbulbPos.x, lightbulbPos.y + 0.15, lightbulbPos.z);
 
-const lightbulbBase = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, .01, 64), new THREE.MeshStandardMaterial({ color: 0xDDDDDD }));
-scene.add(lightbulbBase);
-lightbulbBase.position.set(lightbulbposX, lightbulbposY + .15, lightbulbposZ);
+const bulbOutlet = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.1), new THREE.MeshStandardMaterial({ color: 0xDDDDDD }));
+scene.add(bulbOutlet);
+bulbOutlet.position.set(lightbulbPos.x, lightbulbPos.y + 0.1, lightbulbPos.z);
 
-const lightbulbOutlet = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .1), new THREE.MeshStandardMaterial({ color: 0xDDDDDD }));
-scene.add(lightbulbOutlet);
-lightbulbOutlet.position.set(lightbulbposX, lightbulbposY + .1, lightbulbposZ);
-
-
-// ===== LIGHTS =====
-scene.add(new THREE.AmbientLight(0x404040, .3));
+// ===== Lights =====
+scene.add(new THREE.AmbientLight(0x404040, 0.3));
 scene.add(new THREE.HemisphereLight(0x404040, 0x404040, 1));
 
-const LightBulbLight = new THREE.PointLight(0xffffff, .6, 100);
-LightBulbLight.castShadow = true;
-LightBulbLight.position.set(lightbulbposX, lightbulbposY + .05, lightbulbposZ);
-scene.add(LightBulbLight);
+const bulbLight = new THREE.PointLight(0xffffff, 0.6, 100);
+bulbLight.castShadow = true;
+bulbLight.position.set(lightbulbPos.x, lightbulbPos.y + 0.05, lightbulbPos.z);
+scene.add(bulbLight);
 
-// ===== CAMERA =====
+// ===== Camera =====
 camera.position.z = 8;
 
-// ===== ANIMATE =====
+// ===== Animate =====
 function animate() {
     requestAnimationFrame(animate);
-    controls.update();
     renderer.render(scene, camera);
 }
 animate();
